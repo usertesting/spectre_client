@@ -3,16 +3,19 @@ require "rest_client"
 
 module SpectreClient
   class Client
-    def initialize(project_name, suite_name, url_base)
+    def initialize(project_name, suite_name, url_base, run_id: nil)
       @url_base = url_base
+      payload = {
+        project: project_name,
+        suite: suite_name
+      }
+      payload.merge!(id: run_id) if run_id
+
       request = RestClient::Request.execute(
         method: :post,
         url: "#{@url_base}/runs",
         timeout: 120,
-        payload: {
-          project: project_name,
-          suite: suite_name
-        }
+        payload: payload
       )
       response = JSON.parse(request.to_str)
       @run_id = response['id']
